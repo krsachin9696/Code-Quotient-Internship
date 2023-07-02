@@ -1,0 +1,22 @@
+{
+  "name": "hello-node",
+  "version": "0.0.1",
+  "description": "I won't tell",
+  "main": "test.js",
+  "scripts": {
+    "test": "npm test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krsachin9696/Code-Quotient-Intership.git"
+  },
+  "author": "Shan",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/krsachin9696/Code-Quotient-Intership/issues"
+  },
+  "homepage": "https://github.com/krsachin9696/Code-Quotient-Intership#readme",
+  "dependencies": {
+    "area-of-square": "^1.0.1"
+  }
+}
