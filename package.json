@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/krsachin9696/Code-Quotient-Intership#readme",
   "dependencies": {
-    "area-of-square": "^1.0.1"
+    "area-of-square": "^1.0.1",
+    "node-fetch": "^2.6.1"
   }
 }
