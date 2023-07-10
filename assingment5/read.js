@@ -1,4 +1,4 @@
-// take api's url from a filr, fetch data and copy in a new file dynamically"
+// take api's url from a file, fetch data and copy in a new file dynamically"
 
 const fs = require('fs');
 const fetch = require('node-fetch');
