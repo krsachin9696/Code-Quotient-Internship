@@ -19,7 +19,7 @@ fetch(apiUrl)
 
 
 
-
+// The below code fetches data from external api and prints in on web page using server on the given port 
 
 // const fetch = require("node-fetch");
 // const http = require("http");
