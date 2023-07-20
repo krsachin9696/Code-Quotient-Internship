@@ -42,28 +42,66 @@ function startChat(friendData) {
   chatBoxNode.appendChild(chatButtonNode);
 
   chatButtonNode.addEventListener("click", function () {
-    const chat = document.createElement("ul");
-    chat.id = "form";
-    chatBoxNode.appendChild(chat);
+    // const chat = document.createElement("ul");
+    // chat.id = "form";
+    // chatBoxNode.appendChild(chat);
 
-    const form_box = document.createElement("form");
+    // const form_box = document.createElement("form");
+    // form_box.id = "form";
+    // const inp = document.createElement("input");
+    // inp.id = "input";
+    // const sendButton = document.createElement("button");
+    // sendButton.innerText = "Send";
+
+    // form_box.appendChild(inp);
+    // form_box.appendChild(sendButton);
+
+    // chatBoxNode.appendChild(form_box);
+    const chat = document.createElement("ul");
+    chat.id = "chat";
+
+    const form_box = document.createElement("div");
     form_box.id = "form";
+    const senderName = document.createElement("div");
+    senderName.className = "sender-name";
+    senderName.innerText = friendData.nickName; // Replace "Your Name" with the actual sender's name
     const inp = document.createElement("input");
     inp.id = "input";
+    inp.type = "text";
+    inp.placeholder = "Type your message...";
     const sendButton = document.createElement("button");
     sendButton.innerText = "Send";
+    sendButton.type = "button";
 
     form_box.appendChild(inp);
     form_box.appendChild(sendButton);
 
-    chatBoxNode.appendChild(form_box);
+    const whatsappDiv = document.getElementById("whatsapp");
+    whatsappDiv.appendChild(senderName);
+    whatsappDiv.appendChild(chat);
+    whatsappDiv.appendChild(form_box);
 
-    var form = document.getElementById('form');
-    var input = document.getElementById('input');
+    
+    // send message
 
-    form_box.addEventListener("submit", function (e){  // ye hmlog html form se ek event fire kr rhe h..
-      console.log("form bhr rha ");
-      e.preventDefault();                        // jo ki socket k through server pe jayega
+    sendButton.addEventListener("click", function () {
+      const msg = inp.value;
+
+      socket.emit("chat message", {
+        msg: msg,
+        friendUserName: friendData.userName,
+        sentBy: user,
+      });
+      inp.value = "";
+    });
+
+
+    // var form = document.getElementById('form');
+    // var input = document.getElementById('input');
+
+    // form_box.addEventListener("submit", function (e){  // ye hmlog html form se ek event fire kr rhe h..
+    //   console.log("form bhr rha ");
+    //   e.preventDefault();                        // jo ki socket k through server pe jayega
       // if(input.value){
       //     socket.emit("chat message", input.value);
       //     input.value = "";
@@ -77,19 +115,70 @@ function startChat(friendData) {
       //     item.style.textAlign = "right";
       //     window.scrollTo(0, document.body.scrollHeight);
       // }    
-      const msg = input.value;
-      socket.emit("chat message", {
-        msg: msg,
-        friendUserName: friendData.userName,
-        sentBy: user,
-      });
-      input.value = "";
-  });
+  //     const msg = input.value;
+  //     socket.emit("chat message", {
+  //       msg: msg,
+  //       friendUserName: friendData.userName,
+  //       sentBy: user,
+  //     });
+  //     input.value = "";
+  // });
+
 
   });
 }
 
+// handling incoming chat
 
+// const chatList = {};
+
+// let body;
+// socket.on("chat message", function (chatData) {
+//   if(!chatList[chatData.sentBy.userName]){
+//     chatList[chatData.sentBy.userName] = true;
+
+//     // create a chatbox and append in body
+
+
+//   }
+// })
+const chatList = {};
+socket.on("chat message", function (chatData) {
+  if (!chatData || !chatData.sentBy || !chatData.sentBy.userName) {
+    console.log("Received invalid chat data:", chatData);
+    return;
+  }
+
+  const friendUserName = chatData.sentBy.userName;
+
+  // Check if the chat box for this friend exists
+  if (!chatList[friendUserName]) {
+    chatList[friendUserName] = true;
+
+    // Create a chat box for this friend
+    createChatBox(chatData.sentBy);
+  }
+
+  // Find the chat box element for this friend
+  const chatBox = document.querySelector(`.chat-box[data-user-name="${friendUserName}"] .chat`);
+
+  // Create a new message element and append it to the chat box
+  const messageElement = document.createElement("li");
+  messageElement.innerText = chatData.msg;
+
+  // Determine whether the message is incoming or outgoing and set the appropriate class
+  messageElement.classList.add(chatData.sentBy.userName === user.userName ? "outgoing" : "incoming");
+
+  chatBox.appendChild(messageElement);
+
+  // Scroll to the bottom of the chat box to show the latest message
+  chatBox.scrollTop = chatBox.scrollHeight;
+});
+
+
+
+
+// ..........................................................................................................
 // update users
 
 submitUserNameNode.addEventListener("click", function () {
@@ -123,3 +212,38 @@ socket.on("user updated nickname", function (userData){
 
 
 console.log("connect to hua hai");
+
+
+function createChatBox(friendData) {
+  const chatBoxNode = document.createElement("div");
+  chatBoxNode.className = "chat-box";
+  chatBoxNode.dataset.userName = friendData.userName;
+
+  const senderName = document.createElement("div");
+  senderName.className = "sender-name";
+  senderName.innerText = friendData.nickName;
+
+  const chat = document.createElement("ul");
+  chat.className = "chat";
+
+  const form_box = document.createElement("form");
+  form_box.className = "form-box";
+  const inp = document.createElement("input");
+  inp.className = "input";
+  inp.type = "text";
+  inp.placeholder = "Type your message...";
+  const sendButton = document.createElement("button");
+  sendButton.className = "send-button";
+  sendButton.innerText = "Send";
+  sendButton.type = "button";
+
+  form_box.appendChild(inp);
+  form_box.appendChild(sendButton);
+  chatBoxNode.appendChild(senderName);
+  chatBoxNode.appendChild(chat);
+  chatBoxNode.appendChild(form_box);
+
+  document.getElementById("whatsapp").appendChild(chatBoxNode);
+
+  // ... Rest of your code for handling sending messages ...
+}
