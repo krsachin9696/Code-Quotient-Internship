@@ -37,7 +37,14 @@ socketServer.on("connect", (socket) => {
         socketServer.emit("le bhai message aa gye");
     });
 
-    socket.on("connect user", function (userName) {
-        console.log("user connected:" + userName);
-    });
+    socket.on("connect user", updateConnectedUsers);
 });
+
+
+function updateConnectedUsers (userName) {
+    // console.log("user connected:" + userName);
+
+    const userData = userBase.getUser(userName);
+
+    console.log(userBase.get(userName));
+}

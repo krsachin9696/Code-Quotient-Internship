@@ -10,32 +10,30 @@ const friendNickNameLabelNode = document.getElementById("friendNickNameLabel");
 
 let user;
 
-// search friend
+// search friend 
 
 searchFriendButtonNode.addEventListener("click", function () {
   const friendName = searchFriendNode.value;
-
+  // console.log(friendName);
   socket.emit("search friend", friendName);
+
+  searchFriendNode.value = "";
 });
 
 socket.on("search friend", function (friendData) {
-  if (friendData) {
+  console.log("hn bhai yja aa rha hai");
+  if(friendData){
     friendNickNameLabelNode.innerText = friendData.nickName;
-
-    // start chat
 
     startChat(friendData);
   } else {
-    friendNickNameLabelNode.innerText =
-      "koi dost nhi h , is naam se, spelling check kr le";
+    friendNickNameLabelNode.innerText = 
+    "No such friend found";
   }
 });
 
 function startChat(friendData) {
-  // create and append a button in chat box
   const chatBoxNode = document.getElementById("chatBox");
-
-  chatBoxNode.innerHTML = "";
 
   const chatButtonNode = document.createElement("button");
   chatButtonNode.innerText = "chat with " + friendData.nickName;
@@ -44,195 +42,84 @@ function startChat(friendData) {
   chatBoxNode.appendChild(chatButtonNode);
 
   chatButtonNode.addEventListener("click", function () {
-    // create a chatbox like hangout and append into body
+    const chat = document.createElement("ul");
+    chat.id = "form";
+    chatBoxNode.appendChild(chat);
 
-    const chatNode = document.createElement("div");
-    chatNode.style.position = "fixed";
-    chatNode.style.bottom = "0px";
-    chatNode.style.right = "0px";
-    chatNode.style.width = "300px";
-    chatNode.style.height = "300px";
-    chatNode.style.backgroundColor = "white";
-    chatNode.style.border = "1px solid black";
-    chatNode.style.display = "flex";
-    chatNode.style.flexDirection = "column";
+    const form_box = document.createElement("form");
+    form_box.id = "form";
+    const inp = document.createElement("input");
+    inp.id = "input";
+    const sendButton = document.createElement("button");
+    sendButton.innerText = "Send";
 
-    const chatHeaderNode = document.createElement("div");
-    chatHeaderNode.style.height = "50px";
-    chatHeaderNode.style.backgroundColor = "grey";
-    chatHeaderNode.style.display = "flex";
-    chatHeaderNode.style.justifyContent = "space-between";
-    chatHeaderNode.style.alignItems = "center";
+    form_box.appendChild(inp);
+    form_box.appendChild(sendButton);
 
-    const chatHeaderLabelNode = document.createElement("label");
-    chatHeaderLabelNode.innerText = friendData.nickName;
+    chatBoxNode.appendChild(form_box);
 
-    const chatHeaderCloseButtonNode = document.createElement("button");
-    chatHeaderCloseButtonNode.innerText = "X";
+    var form = document.getElementById('form');
+    var input = document.getElementById('input');
 
-    chatHeaderNode.appendChild(chatHeaderLabelNode);
-    chatHeaderNode.appendChild(chatHeaderCloseButtonNode);
-
-    const chatBodyNode = document.createElement("div");
-    chatBodyNode.style.flexGrow = "1";
-    chatBodyNode.style.overflowY = "scroll";
-
-    const chatFooterNode = document.createElement("div");
-    chatFooterNode.style.height = "50px";
-    chatFooterNode.style.backgroundColor = "grey";
-    chatFooterNode.style.display = "flex";
-    chatFooterNode.style.justifyContent = "space-between";
-    chatFooterNode.style.alignItems = "center";
-
-    const chatFooterInputNode = document.createElement("input");
-    chatFooterInputNode.style.flexGrow = "1";
-
-    const chatFooterSendButtonNode = document.createElement("button");
-    chatFooterSendButtonNode.innerText = "Send";
-
-    chatFooterNode.appendChild(chatFooterInputNode);
-    chatFooterNode.appendChild(chatFooterSendButtonNode);
-
-    chatNode.appendChild(chatHeaderNode);
-    chatNode.appendChild(chatBodyNode);
-    chatNode.appendChild(chatFooterNode);
-
-    document.body.appendChild(chatNode);
-
-    // send message
-
-    chatFooterSendButtonNode.addEventListener("click", function () {
-      const msg = chatFooterInputNode.value;
-
+    form_box.addEventListener("submit", function (e){  // ye hmlog html form se ek event fire kr rhe h..
+      console.log("form bhr rha ");
+      e.preventDefault();                        // jo ki socket k through server pe jayega
+      // if(input.value){
+      //     socket.emit("chat message", input.value);
+      //     input.value = "";
+  
+  
+      //     // append message to our list 
+  
+      //     var item = document.createElement("li");
+      //     item.textContent = input.value;
+      //     messages.appendChild(item);
+      //     item.style.textAlign = "right";
+      //     window.scrollTo(0, document.body.scrollHeight);
+      // }    
+      const msg = input.value;
       socket.emit("chat message", {
         msg: msg,
         friendUserName: friendData.userName,
         sentBy: user,
       });
+      input.value = "";
+  });
 
-      chatFooterInputNode.value = "";
-    });
   });
 }
 
-// handle incoming chat
 
-const chatList = {};
+// update users
 
-let body;
-socket.on("chat message", function (chatData) {
-  if (!chatList[chatData.sentBy.userName]) {
-    chatList[chatData.sentBy.userName] = true;
-
-    // create a chatbox like hangout and append into body
-
-    const chatNode = document.createElement("div");
-    chatNode.style.position = "fixed";
-    chatNode.style.bottom = "0px";
-    chatNode.style.right = "0px";
-    chatNode.style.width = "300px";
-    chatNode.style.height = "300px";
-    chatNode.style.backgroundColor = "white";
-    chatNode.style.border = "1px solid black";
-    chatNode.style.display = "flex";
-    chatNode.style.flexDirection = "column";
-
-    const chatHeaderNode = document.createElement("div");
-    chatHeaderNode.style.height = "50px";
-    chatHeaderNode.style.backgroundColor = "grey";
-    chatHeaderNode.style.display = "flex";
-    chatHeaderNode.style.justifyContent = "space-between";
-    chatHeaderNode.style.alignItems = "center";
-
-    const chatHeaderLabelNode = document.createElement("label");
-    chatHeaderLabelNode.innerText = chatData.sentBy.nickName;
-
-    const chatHeaderCloseButtonNode = document.createElement("button");
-    chatHeaderCloseButtonNode.innerText = "X";
-
-    chatHeaderNode.appendChild(chatHeaderLabelNode);
-    chatHeaderNode.appendChild(chatHeaderCloseButtonNode);
-
-    const chatBodyNode = document.createElement("div");
-    chatBodyNode.style.flexGrow = "1";
-    chatBodyNode.style.overflowY = "scroll";
-
-    const chatFooterNode = document.createElement("div");
-    chatFooterNode.style.height = "50px";
-    chatFooterNode.style.backgroundColor = "grey";
-    chatFooterNode.style.display = "flex";
-    chatFooterNode.style.justifyContent = "space-between";
-    chatFooterNode.style.alignItems = "center";
-
-    const chatFooterInputNode = document.createElement("input");
-    chatFooterInputNode.style.flexGrow = "1";
-
-    const chatFooterSendButtonNode = document.createElement("button");
-    chatFooterSendButtonNode.innerText = "Send";
-
-    chatFooterNode.appendChild(chatFooterInputNode);
-    chatFooterNode.appendChild(chatFooterSendButtonNode);
-
-    chatNode.appendChild(chatHeaderNode);
-    chatNode.appendChild(chatBodyNode);
-    chatNode.appendChild(chatFooterNode);
-
-    document.body.appendChild(chatNode);
-
-    body = chatBodyNode;
-  }
-  // create a incoming chat message and appen into chat body
-
-  const chatMessageNode = document.createElement("div");
-  chatMessageNode.style.display = "flex";
-  chatMessageNode.style.justifyContent = "flex-start";
-  chatMessageNode.style.alignItems = "center";
-  chatMessageNode.style.margin = "10px";
-
-  const chatMessageLabelNode = document.createElement("label");
-  chatMessageLabelNode.innerText = chatData.msg;
-
-  chatMessageNode.appendChild(chatMessageLabelNode);
-
-  body.appendChild(chatMessageNode);
-});
-
-// update user
 submitUserNameNode.addEventListener("click", function () {
   const userName = userNameNode.value;
-
   socket.emit("connect user", userName);
+
+  userNameNode.value = "";
 });
 
-socket.on("le bhai message aaya", function (msg) {
-  console.log("bhai ne message kiya");
-});
+socket.on("user updated", function (userData){
+  if(!userData.nickName){
+    const nickName = prompt("NickName bta bhai");
 
-socket.on("disconnect", function () {
-  console.log("bhai chala gaya");
-});
-
-socket.on("connect", function () {
-  console.log("bhai aa gaya");
-});
-
-socket.on("user updated", function (userData) {
-  if (!userData.nickName) {
-    const nickName = prompt("Enter your nickname");
-
-    if (nickName) {
+    if(nickName){
       socket.emit("update user", {
         nickName: nickName,
         userName: userData.userName,
       });
     }
-  } else {
+  }else {
     user = userData;
     userNickNameLabelNode.innerText = userData.nickName;
   }
 });
 
-socket.on("user updated nickname", function (userData) {
+socket.on("user updated nickname", function (userData){
   user = userData;
   userNickNameLabelNode.innerText = userData.nickName;
 });
+
+
+
+console.log("connect to hua hai");

@@ -12,6 +12,13 @@ const userBase = require("../userBase/users");
 
 // express solves routing and middleware problems for developers
 app.get("/", function (req, res) {
+  /* fs.readFile("./public/index.html", function (err, data) {
+    res.writeHead(200, { "Content-Type": "text/html" });
+    res.write(data);
+    res.end();
+  }); */
+
+  // alternative in express
   res.sendFile(__dirname + "/index.html");
 });
 
@@ -19,7 +26,13 @@ app.get("/script.js", function (req, res) {
   res.sendFile(__dirname + "/script.js");
 });
 
+app.get("/about", function (req, res) {
+  res.send("About");
+});
 
+app.get("/contact", function (req, res) {
+  res.send("Contact");
+});
 
 server.listen(3000, () => {
   console.log("server on port 3000");
@@ -29,7 +42,6 @@ socketServer.on("connection", function (socket) {
   socket.on("disconnect", function () {
     console.log("bhai chala gaya");
   });
-  console.log("koi aa gaya maa");
 
   socket.on("connect user", updateConnectedUsers(socket));
 
@@ -37,33 +49,30 @@ socketServer.on("connection", function (socket) {
     updateConnectedUsersName(socket, userData);
   });
 
-
   socket.on("search friend", function (friendName) {
     searchFriend(friendName, socket);
   });
-  // socket.on("search friend", searchFriend(friendName, socket));
 
   socket.on("chat message", function (chatData) {
-    // socketServer.emit("chat from server", msg);
-    const friendData = userBase.getUser(chatData.friendUserName);
+    handleChatMessage(chatData);
+  });
 
-    friendData.connection.emit("chat message", chatData);
-  })
+  console.log("koi aa gaya maa");
 });
 
-
-function updateConnectedUsers(socket){
-  return function (userName){
+function updateConnectedUsers(socket) {
+  return function (userName) {
     let userData = userBase.getUser(userName);
 
-    if(!userData){
+    if (!userData) {
       userData = userBase.setUserNames(socket, userName);
     }
+
     socket.emit("user updated", userData.data);
   };
 }
 
-function updateConnectedUsersName(socket, userData){
+function updateConnectedUsersName(socket, userData) {
   const userName = userData.userName;
 
   userBase.updateUser(userName, userData);
@@ -73,8 +82,14 @@ function updateConnectedUsersName(socket, userData){
   socket.emit("user updated nickname", userData.data);
 }
 
-function searchFriend(friendName, socket){
+function searchFriend(friendName, socket) {
   const friendData = userBase.getUser(friendName);
 
-  socket.emit("search friend", friendData?.data);   // friendData?.data: This is the data that is being sent along with the event. The ?. is the optional chaining operator, which is used to safeguard against potential null or undefined values. It checks if friendData is not null or undefined before trying to access the data property. If friendData is null or undefined, this expression will evaluate to undefine
+  socket.emit("search friend", friendData?.data);
+}
+
+function handleChatMessage(chatData) {
+  const friendData = userBase.getUser(chatData.friendUserName);
+
+  friendData.connection.emit("chat message", chatData);
 }
