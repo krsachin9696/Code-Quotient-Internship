@@ -45,6 +45,20 @@ app.delete("/delete-todo", function (req, res) {
     });
 });
 
+app.put("/update-todo", function (req, res) {
+    const todoToUpdate = req.body;
+  
+    // Implement the logic to update the checked status of the task in the local file
+    updateTodoCheckedStatusInFile(todoToUpdate.todoText, todoToUpdate.checked, function (err) {
+      if (err) {
+        console.error("Error updating task checked status:", err);
+        res.status(500).send("Error updating task checked status.");
+      } else {
+        res.status(200).send("Task checked status updated successfully.");
+      }
+    });
+  });
+
 
 app.get("/about", function(req,res) {
     res.sendFile(__dirname + "/todoViews/about.html");
@@ -131,27 +145,50 @@ function deleteTodoFromFile(todo, callback) {
 }
 
 
-// New function to update the checked status of a task in the file
-function updateCheckedStatusInFile(todoText, checkedStatus, callback) {
+// // New function to update the checked status of a task in the file
+// function updateCheckedStatusInFile(todoText, checkedStatus, callback) {
+//     readAllTodos(function (err, data) {
+//         if (err) {
+//             callback(err);
+//             return;
+//         }
+
+//         // Find the task with the matching todoText
+//         const taskToUpdate = data.find((task) => task.todoText === todoText);
+//         if (taskToUpdate) {
+//             taskToUpdate.checked = checkedStatus;
+//         }
+
+//         fs.writeFile("./treasures.mp4", JSON.stringify(data), function (err) {
+//             if (err) {
+//                 callback(err);
+//                 return;
+//             }
+
+//             callback(null);
+//         });
+//     });
+// }
+function updateTodoCheckedStatusInFile(todoText, checkedStatus, callback) {
     readAllTodos(function (err, data) {
+      if (err) {
+        callback(err);
+        return;
+      }
+  
+      // Find the task with the matching todoText
+      const taskToUpdate = data.find((task) => task.todoText === todoText);
+      if (taskToUpdate) {
+        taskToUpdate.checked = checkedStatus;
+      }
+  
+      fs.writeFile("./treasures.mp4", JSON.stringify(data), function (err) {
         if (err) {
-            callback(err);
-            return;
+          callback(err);
+          return;
         }
-
-        // Find the task with the matching todoText
-        const taskToUpdate = data.find((task) => task.todoText === todoText);
-        if (taskToUpdate) {
-            taskToUpdate.checked = checkedStatus;
-        }
-
-        fs.writeFile("./treasures.mp4", JSON.stringify(data), function (err) {
-            if (err) {
-                callback(err);
-                return;
-            }
-
-            callback(null);
-        });
+  
+        callback(null);
+      });
     });
-}
+  }
