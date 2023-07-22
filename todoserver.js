@@ -31,6 +31,21 @@ app.get("/todo-data", function (req, res) {
     });
 });
 
+app.delete("/delete-todo", function (req, res) {
+    const todoToDelete = req.body;
+
+    // Implement the logic to delete the task from the file
+    deleteTodoFromFile(todoToDelete, function (err) {
+        if (err) {
+            console.error("Error deleting task:", err);
+            res.status(500).send("Error deleting task.");
+        } else {
+            res.status(200).send("Task deleted successfully.");
+        }
+    });
+});
+
+
 app.get("/about", function(req,res) {
     res.sendFile(__dirname + "/todoViews/about.html");
 });
@@ -79,10 +94,33 @@ function saveTodoInFile(todo, callback){
             return;
         }
 
+
         data.push(todo);
 
         fs.writeFile("./treasures.mp4", JSON.stringify(data), function (err) {
             if(err) {
+                callback(err);
+                return;
+            }
+
+            callback(null);
+        });
+    });
+}
+
+
+function deleteTodoFromFile(todo, callback) {
+    readAllTodos(function (err, data) {
+        if (err) {
+            callback(err);
+            return;
+        }
+
+        // Find and remove the task with matching todoText
+        data = data.filter((item) => item.todoText !== todo.todoText);
+
+        fs.writeFile("./treasures.mp4", JSON.stringify(data), function (err) {
+            if (err) {
                 callback(err);
                 return;
             }
