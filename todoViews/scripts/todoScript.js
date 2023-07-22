@@ -7,7 +7,9 @@ submitTodoNode.addEventListener("click", function () {
 
     const todoText = userInputNode.value;
     // debugger;
+    userInputNode.value = "";
     const priority = prioritySelectorNode.value;
+    prioritySelectorNode.value = "";
     
     if(!todoText || !priority){
         alert("please enter a todo & select its priority");
@@ -17,6 +19,7 @@ submitTodoNode.addEventListener("click", function () {
     const todo = {
         todoText,   // it is actually written as todoText: todoText, but 
         priority,   // if the key & value name is same then it can also be written as it is written 
+        // checked: false, // Set the initial checked status to false
     };
 
     fetch("/todo", {       // The fetch function is a modern way to make network requests, 
@@ -58,8 +61,8 @@ function showTodoInUI(todo) {
         todoItemNode.classList.toggle("done", checkboxNode.checked);
     
         // Update checked status in local storage
-        const isChecked = checkboxNode.checked;
-        updateCheckedStatusInLocalStorage(todo.todoText, isChecked);
+        // const isChecked = checkboxNode.checked;
+        // updateCheckedStatusInLocalStorage(todo.todoText, isChecked);
     });
   
     const todoTextNode = document.createElement("div");
@@ -132,45 +135,45 @@ function deleteTodoOnServer(todo) {
 }
 
 
-fetch("/todo-data")
-.then(function (response) {
-    if (response.status === 200) {
-        return response.json();
-    } else {
-        alert("Something went wrong");
-    }
-})
-.then(function (todos) {
-    // Clear the existing tasks before adding them again
-    todoListNode.innerHTML = "";
+// fetch("/todo-data")
+// .then(function (response) {
+//     if (response.status === 200) {
+//         return response.json();
+//     } else {
+//         alert("Something went wrong");
+//     }
+// })
+// .then(function (todos) {
+//     // Clear the existing tasks before adding them again
+//     todoListNode.innerHTML = "";
 
-    todos.forEach(function (todo) {
-        showTodoInUI(todo);
-        // Update checked status based on local storage
-        const isChecked = getCheckedStatusFromLocalStorage(todo.todoText);
-        if (isChecked) {
-            const todoItemNode = document.querySelector(`[data-todo="${todo.todoText}"]`);
-            const checkboxNode = todoItemNode.querySelector(".checkbox");
-            todoItemNode.classList.add("done");
-            checkboxNode.checked = true;
-        }
-    });
-});
+//     todos.forEach(function (todo) {
+//         showTodoInUI(todo);
+//         // Update checked status based on local storage
+//         const isChecked = getCheckedStatusFromLocalStorage(todo.todoText);
+//         if (isChecked) {
+//             const todoItemNode = document.querySelector(`[data-todo="${todo.todoText}"]`);
+//             const checkboxNode = todoItemNode.querySelector(".checkbox");
+//             todoItemNode.classList.add("done");
+//             checkboxNode.checked = true;
+//         }
+//     });
+// });
 
 
 
-function updateCheckedStatusInLocalStorage(todoText, isChecked) {
-    // Retrieve existing data from local storage or initialize an empty object
-    const storedData = JSON.parse(localStorage.getItem("todoCheckedStatus")) || {};
+// function updateCheckedStatusInLocalStorage(todoText, isChecked) {
+//     // Retrieve existing data from local storage or initialize an empty object
+//     const storedData = JSON.parse(localStorage.getItem("todoCheckedStatus")) || {};
 
-    // Update the checked status for the specific task
-    storedData[todoText] = isChecked;
+//     // Update the checked status for the specific task
+//     storedData[todoText] = isChecked;
 
-    // Save the updated data back to local storage
-    localStorage.setItem("todoCheckedStatus", JSON.stringify(storedData));
-}
+//     // Save the updated data back to local storage
+//     localStorage.setItem("todoCheckedStatus", JSON.stringify(storedData));
+// }
 
-function getCheckedStatusFromLocalStorage(todoText) {
-    const storedData = JSON.parse(localStorage.getItem("todoCheckedStatus")) || {};
-    return storedData[todoText] || false; // Default to false if the task is not found in the local storage
-}
+// function getCheckedStatusFromLocalStorage(todoText) {
+//     const storedData = JSON.parse(localStorage.getItem("todoCheckedStatus")) || {};
+//     return storedData[todoText] || false; // Default to false if the task is not found in the local storage
+// }
