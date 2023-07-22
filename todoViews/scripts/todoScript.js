@@ -35,16 +35,57 @@ submitTodoNode.addEventListener("click", function () {
     });
 });
 
+// function showTodoInUI(todo) {
+//     const todoTextNode = document.createElement("div");
+//     todoTextNode.innerText = todo.todoText;
+
+//     const priorityNode = document.createElement("span");
+//     priorityNode.innerText = todo.priority;
+
+//     todoListNode.appendChild(todoTextNode);
+//     todoListNode.appendChild(priorityNode);
+// }
 function showTodoInUI(todo) {
+    const todoItemNode = document.createElement("div");
+    todoItemNode.classList.add("todo-item");
+  
+    const checkboxNode = document.createElement("input");
+    checkboxNode.type = "checkbox";
+    checkboxNode.classList.add("checkbox");
+    checkboxNode.addEventListener("change", function () {
+      // Mark the task as done when the checkbox is checked
+      todoItemNode.classList.toggle("done", checkboxNode.checked);
+    });
+  
     const todoTextNode = document.createElement("div");
     todoTextNode.innerText = todo.todoText;
-
-    const priorityNode = document.createElement("span");
+    todoTextNode.classList.add("task");
+  
+    const priorityNode = document.createElement("div");
     priorityNode.innerText = todo.priority;
+    priorityNode.classList.add("priority");
+  
+    const deleteButtonNode = document.createElement("div");
+    deleteButtonNode.innerText = "Delete";
+    deleteButtonNode.classList.add("delete-button");
+    deleteButtonNode.addEventListener("click", function () {
+      // Remove the task when the delete button is clicked
+      todoItemNode.remove();
+    });
+  
+    todoItemNode.appendChild(checkboxNode);
+    todoItemNode.appendChild(todoTextNode);
+    todoItemNode.appendChild(priorityNode);
+    todoItemNode.appendChild(deleteButtonNode);
 
-    todoListNode.appendChild(todoTextNode);
-    todoListNode.appendChild(priorityNode);
-}
+    checkboxNode.classList.add("todo-checkbox");
+    todoTextNode.classList.add("todo-task");
+    priorityNode.classList.add("todo-priority");
+    deleteButtonNode.classList.add("todo-delete");
+
+    todoListNode.appendChild(todoItemNode);
+  }
+  
 
 fetch("/todo-data")
 .then(function (response) {
