@@ -1,11 +1,23 @@
 const express = require('express');
 const fs = require('fs');
+var session = require('express-session')
 
 const app = express();
 
+app.use(session({
+    secret: 'keyboard cat',
+    resave: false,
+    saveUninitialized: true,
+  }))
+
 app.use(express.json());
+app.use(express.urlencoded({extended: true }));
 
 app.get("/", function(req, res) {
+    if(!req.session.isLoggedIn) {
+        res.redirect("/login");
+        return;
+    }
     res.sendFile(__dirname + "/todoViews/index.html");
 });
 
@@ -61,20 +73,54 @@ app.put("/update-todo", function (req, res) {
 
 
 app.get("/about", function(req,res) {
+    if(!req.session.isLoggedIn) {
+        res.redirect("/login");
+        return;
+    }
     res.sendFile(__dirname + "/todoViews/about.html");
 });
 
 app.get("/contact", function (req, res) {
+    if(!req.session.isLoggedIn) {
+        res.redirect("/login");
+        return;
+    }
     res.sendFile(__dirname + "/todoViews/contact.html");
 });
 
 app.get("/todo", function (req, res) {
+    if(!req.session.isLoggedIn) {
+        res.redirect("/login");
+        return;
+    }
     res.sendFile(__dirname + "/todoViews/todo.html");
 });
 
 app.get("/scripts/todoScript.js", function (req, res) {
     res.sendFile(__dirname + "/todoViews/scripts/todoScript.js");
 });
+
+app.get("/login", function(req, res) {
+    res.sendFile(__dirname + "/todoViews/login.html");
+});
+
+app.post("/login", function(req, res) {
+    
+    const username = req.body.username;
+    const password = req.body.password;
+
+    // console.log(username, password);
+    if(username === "shan" && password === "shan") {
+        // res.status(200).send("success");
+        req.session.isLoggedIn = true;
+        req.session.username = username;
+        res.redirect("/");
+        return;
+    }
+
+    res.status(401).send("error");
+});
+
 
 app.listen(3000, function () {
     console.log("connection brabar chhe");
